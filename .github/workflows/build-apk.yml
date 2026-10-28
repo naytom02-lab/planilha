@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -27,3 +29,16 @@ jobs:
         with:
           name: KmDespesas-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Guardar o APK na ramificação apk
+        run: |
+          mkdir -p /tmp/out
+          cp app/build/outputs/apk/debug/app-debug.apk /tmp/out/KmDespesas.apk
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git checkout --orphan apk
+          git rm -rf . -q
+          cp /tmp/out/KmDespesas.apk .
+          git add KmDespesas.apk
+          git commit -q -m "APK gerado"
+          git push -f origin apk
